@@ -30,6 +30,7 @@
 package org.hisp.dhis.android.sdk.controllers.metadata;
 
 import android.content.Context;
+import android.location.LocationManager;
 import android.util.Log;
 
 import com.raizlabs.android.dbflow.sql.builder.Condition;
@@ -42,6 +43,7 @@ import org.hisp.dhis.android.sdk.controllers.LoadingController;
 import org.hisp.dhis.android.sdk.controllers.ResourceController;
 import org.hisp.dhis.android.sdk.controllers.wrappers.AssignedProgramsWrapper;
 import org.hisp.dhis.android.sdk.controllers.wrappers.OptionSetWrapper;
+import org.hisp.dhis.android.sdk.controllers.wrappers.OrgUnitsContactWrapper;
 import org.hisp.dhis.android.sdk.controllers.wrappers.ProgramWrapper;
 import org.hisp.dhis.android.sdk.network.APIException;
 import org.hisp.dhis.android.sdk.network.DhisApi;
@@ -59,6 +61,8 @@ import org.hisp.dhis.android.sdk.persistence.models.OptionSet;
 import org.hisp.dhis.android.sdk.persistence.models.OptionSet$Table;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit$Table;
+import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitContactInfo;
+import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitContactInfo$Table;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitProgramRelationship;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitProgramRelationship$Table;
 import org.hisp.dhis.android.sdk.persistence.models.Program;
@@ -92,6 +96,7 @@ import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.persistence.models.meta.DbOperation;
 import org.hisp.dhis.android.sdk.persistence.preferences.DateTimeManager;
 import org.hisp.dhis.android.sdk.persistence.preferences.ResourceType;
+import org.hisp.dhis.android.sdk.sms.SMSNotification;
 import org.hisp.dhis.android.sdk.utils.DbUtils;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
 import org.hisp.dhis.android.sdk.utils.api.ProgramType;
@@ -100,6 +105,8 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -503,6 +510,24 @@ public final class MetaDataController extends ResourceController {
         return indicators;
     }
 
+    //TODO SMS THINGS
+    public static List<OrganisationUnitContactInfo> getOrgUnitContactInfo(String orgUnitID) {
+        List<OrganisationUnitContactInfo> contactInfos = new Select()
+                .from(OrganisationUnitContactInfo.class)
+                .where(Condition.column(OrganisationUnitContactInfo$Table.ID).is(orgUnitID))
+                .queryList();
+        Iterator<OrganisationUnitContactInfo> it = contactInfos.iterator();
+        while (it.hasNext()){
+            OrganisationUnitContactInfo organisationUnitContactInfo = it.next();
+            organisationUnitContactInfo.getId();
+            organisationUnitContactInfo.getAttributeValues();
+
+            SMSNotification.log("THE real thing: id : " + organisationUnitContactInfo.getId());
+        }
+
+        return contactInfos;
+    }
+
     /**
       * Clears status and time of loaded meta data items
       */
@@ -519,6 +544,7 @@ public final class MetaDataController extends ResourceController {
         DateTimeManager.getInstance().deleteLastUpdated(ResourceType.PROGRAMRULEVARIABLES);
         DateTimeManager.getInstance().deleteLastUpdated(ResourceType.PROGRAMRULEACTIONS);
         DateTimeManager.getInstance().deleteLastUpdated(ResourceType.RELATIONSHIPTYPES);
+        DateTimeManager.getInstance().deleteLastUpdated(ResourceType.ORGUNITCONTACT);
     }
 
     /**
@@ -530,6 +556,7 @@ public final class MetaDataController extends ResourceController {
                 Option.class,
                 OptionSet.class,
                 OrganisationUnit.class,
+                OrganisationUnitContactInfo.class,
                 OrganisationUnitProgramRelationship.class,
                 Program.class,
                 ProgramIndicator.class,
@@ -618,6 +645,38 @@ public final class MetaDataController extends ResourceController {
                 getRelationshipTypesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        if (LoadingController.isLoadFlagEnabled(context, ResourceType.ORGUNITCONTACT)) {
+            if ( shouldLoad(dhisApi, ResourceType.ORGUNITCONTACT) ) {
+                List<OrganisationUnit> assignedOrgUnits = getAssignedOrganisationUnits();
+                if(assignedOrgUnits != null) {
+                    for (OrganisationUnit orgUnit : assignedOrgUnits) {
+                        getPhoneContactsFromOrgUnit(dhisApi, orgUnit.getId(), serverDateTime);
+                    }
+                }
+            }
+        }
+    }
+
+    //Getting phonecontacts from the server
+    private static void getPhoneContactsFromOrgUnit(DhisApi dhisApi, String orgUnitID, DateTime serverDateTime){
+        Log.d(CLASS_TAG, "getPhoneContactsFromOrgUnit");
+        DateTime lastUpdated = DateTimeManager.getInstance()
+                .getLastUpdated(ResourceType.ORGUNITCONTACT);
+        Response response = dhisApi.getOrgUnitContact(orgUnitID, getBasicQueryMap(lastUpdated));
+
+       OrganisationUnitContactInfo orgUnitConatact;
+
+        try{
+            orgUnitConatact = new OrgUnitsContactWrapper().deserialize(response);
+        }catch (ConversionException ce){
+            ce.printStackTrace();
+            return;
+        }catch (IOException ioe){
+            ioe.printStackTrace();
+            return;
+        }
+        DateTimeManager.getInstance().setLastUpdated(ResourceType.ORGUNITCONTACT, serverDateTime);
+
     }
 
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {
@@ -636,6 +695,7 @@ public final class MetaDataController extends ResourceController {
             e.printStackTrace();
             return; //todo: handle
         }
+
         List<DbOperation> operations = AssignedProgramsWrapper.getOperations(organisationUnits);
 
         DbUtils.applyBatch(operations);

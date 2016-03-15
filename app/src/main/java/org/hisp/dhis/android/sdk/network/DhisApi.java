@@ -209,6 +209,10 @@ public interface DhisApi {
     @GET("/me/programs/")
     Response getAssignedPrograms(@QueryMap Map<String, String> queryMap);
 
+    //TODO : getting orgunit to get contactinfo for SMS
+    @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "/{orgUnitID}")
+    Response getOrgUnitContact(@Path("orgUnitID") String orgUnitID, @QueryMap Map<String, String> queryMap);
+
     @GET("/" + ApiEndpointContainer.PROGRAMS + "/{programUid}")
     Program getProgram(@Path("programUid") String programUid, @QueryMap Map<String, String> queryMap);
 
