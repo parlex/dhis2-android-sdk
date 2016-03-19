@@ -678,8 +678,15 @@ public final class MetaDataController extends ResourceController {
             ioe.printStackTrace();
             return;
         }
+
+        List<DbOperation> operations = OrgUnitsContactWrapper.getOperations(orgUnitConatact);
+        DbUtils.applyBatch(operations);
         DateTimeManager.getInstance().setLastUpdated(ResourceType.ORGUNITCONTACT, serverDateTime);
 
+        for (OrganisationUnitContactInfo ouci :new Select().from(OrganisationUnitContactInfo.class).where(Condition.column(OrganisationUnitContactInfo$Table.ID).isNull()).queryList()) {
+            Log.d(CLASS_TAG, "id: " + ouci.getId());
+            Log.d(CLASS_TAG, "AttrVals: " + ouci.getAttributeValues());
+        }
     }
 
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {

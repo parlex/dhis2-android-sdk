@@ -1,5 +1,7 @@
 package org.hisp.dhis.android.sdk.persistence.models;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -17,6 +19,7 @@ import java.util.Map;
  */
 @Table(databaseName = Dhis2Database.NAME)
 public class OrganisationUnitContactInfo extends BaseModel{
+    private final String CLASS_TAG = "OrganisationUnitContactInfo";
 
     @JsonProperty("id")
     @Column(name = "id")
@@ -33,11 +36,14 @@ public class OrganisationUnitContactInfo extends BaseModel{
         for (Map<String, Object> attributeValue : attributeValues) {
             tempAttrValues.add((String) attributeValue.get("value"));
         }
+        Log.d(CLASS_TAG, "Setting attributeValues to: " + tempAttrValues.toString());
         this.attributeValues = tempAttrValues;
     }
 
     public void setId(String id){
+        Log.d(CLASS_TAG, "Setting id to: " + id);
         this.id = id;
+        Log.d(CLASS_TAG, "Id is now: " + this.getId());
     }
 
     public String getId(){

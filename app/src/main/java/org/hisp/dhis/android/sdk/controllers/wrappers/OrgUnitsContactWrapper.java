@@ -11,10 +11,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.hisp.dhis.android.sdk.controllers.ApiEndpointContainer;
 import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitContactInfo;
+import org.hisp.dhis.android.sdk.persistence.models.meta.DbOperation;
 import org.hisp.dhis.android.sdk.utils.StringConverter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import retrofit.client.Response;
@@ -65,5 +68,13 @@ public class OrgUnitsContactWrapper extends JsonDeserializer<OrganisationUnitCon
         Log.d(CLASS_TAG, "Attrs: " + contactInfo.getAttributeValues().toString());
 
         return contactInfo;
+    }
+
+
+    public static List<DbOperation> getOperations(OrganisationUnitContactInfo orgUnitContactInfo) {
+        List<DbOperation> operations = new ArrayList<>();
+
+        operations.add(DbOperation.save(orgUnitContactInfo));
+        return operations;
     }
 }
