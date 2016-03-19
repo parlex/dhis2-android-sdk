@@ -1,5 +1,7 @@
 package org.hisp.dhis.android.sdk.controllers.wrappers;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -22,6 +24,7 @@ import retrofit.converter.ConversionException;
  * Created by premer on 08.03.16.
  */
 public class OrgUnitsContactWrapper extends JsonDeserializer<OrganisationUnitContactInfo> {
+    private final String CLASS_TAG = "OrgUnitContactWrapper";
     @Override
     public OrganisationUnitContactInfo deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         OrganisationUnitContactInfo contactInfo = null;
@@ -57,6 +60,9 @@ public class OrgUnitsContactWrapper extends JsonDeserializer<OrganisationUnitCon
                     readValue("{\"" +ind.getKey() + "\":" + ind.getValue() + "}", OrganisationUnitContactInfo.class);
             }
         }
+
+        Log.d(CLASS_TAG, "ID: " + contactInfo.getId());
+        Log.d(CLASS_TAG, "Attrs: " + contactInfo.getAttributeValues().toString());
 
         return contactInfo;
     }

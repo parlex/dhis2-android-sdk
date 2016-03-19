@@ -660,11 +660,14 @@ public final class MetaDataController extends ResourceController {
     //Getting phonecontacts from the server
     private static void getPhoneContactsFromOrgUnit(DhisApi dhisApi, String orgUnitID, DateTime serverDateTime){
         Log.d(CLASS_TAG, "getPhoneContactsFromOrgUnit");
+        final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
         DateTime lastUpdated = DateTimeManager.getInstance()
                 .getLastUpdated(ResourceType.ORGUNITCONTACT);
-        Response response = dhisApi.getOrgUnitContact(orgUnitID, getBasicQueryMap(lastUpdated));
 
-       OrganisationUnitContactInfo orgUnitConatact;
+        QUERY_MAP_FULL.put("fields", "id,attributeValues");
+        Response response = dhisApi.getOrgUnitContact(orgUnitID, QUERY_MAP_FULL);
+
+        OrganisationUnitContactInfo orgUnitConatact;
 
         try{
             orgUnitConatact = new OrgUnitsContactWrapper().deserialize(response);
