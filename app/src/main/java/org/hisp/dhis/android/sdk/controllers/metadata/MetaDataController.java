@@ -649,44 +649,37 @@ public final class MetaDataController extends ResourceController {
             if ( shouldLoad(dhisApi, ResourceType.ORGUNITCONTACT) ) {
                 List<OrganisationUnit> assignedOrgUnits = getAssignedOrganisationUnits();
                 if(assignedOrgUnits != null) {
-                    for (OrganisationUnit orgUnit : assignedOrgUnits) {
-                        getPhoneContactsFromOrgUnit(dhisApi, orgUnit.getId(), serverDateTime);
-                    }
+                    getPhoneContactsFromOrgUnit(dhisApi, assignedOrgUnits, serverDateTime);
                 }
             }
         }
     }
 
     //Getting phonecontacts from the server
-    private static void getPhoneContactsFromOrgUnit(DhisApi dhisApi, String orgUnitID, DateTime serverDateTime){
+    private static void getPhoneContactsFromOrgUnit(DhisApi dhisApi, List<OrganisationUnit> assignedOrgUnits, DateTime serverDateTime) {
         Log.d(CLASS_TAG, "getPhoneContactsFromOrgUnit");
         final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
-        DateTime lastUpdated = DateTimeManager.getInstance()
-                .getLastUpdated(ResourceType.ORGUNITCONTACT);
+        List<OrganisationUnitContactInfo> contactInfo = new ArrayList<>();
 
         QUERY_MAP_FULL.put("fields", "id,attributeValues");
-        Response response = dhisApi.getOrgUnitContact(orgUnitID, QUERY_MAP_FULL);
 
-        OrganisationUnitContactInfo orgUnitConatact;
-
-        try{
-            orgUnitConatact = new OrgUnitsContactWrapper().deserialize(response);
-        }catch (ConversionException ce){
-            ce.printStackTrace();
-            return;
-        }catch (IOException ioe){
-            ioe.printStackTrace();
-            return;
+        for (OrganisationUnit orgUnit : assignedOrgUnits) {
+            Response response = dhisApi.getOrgUnitContact(orgUnit.getId(), QUERY_MAP_FULL);
+            try {
+                contactInfo.add(new OrgUnitsContactWrapper().deserialize(response));
+            } catch (ConversionException ce) {
+                ce.printStackTrace();
+                return;
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                return;
+            }
         }
 
-        List<DbOperation> operations = OrgUnitsContactWrapper.getOperations(orgUnitConatact);
+
+        List<DbOperation> operations = OrgUnitsContactWrapper.getOperations(contactInfo);
         DbUtils.applyBatch(operations);
         DateTimeManager.getInstance().setLastUpdated(ResourceType.ORGUNITCONTACT, serverDateTime);
-
-        for (OrganisationUnitContactInfo ouci :new Select().from(OrganisationUnitContactInfo.class).where(Condition.column(OrganisationUnitContactInfo$Table.ID).isNull()).queryList()) {
-            Log.d(CLASS_TAG, "id: " + ouci.getId());
-            Log.d(CLASS_TAG, "AttrVals: " + ouci.getAttributeValues());
-        }
     }
 
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {

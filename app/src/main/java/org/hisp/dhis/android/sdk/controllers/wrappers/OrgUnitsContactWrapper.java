@@ -71,10 +71,12 @@ public class OrgUnitsContactWrapper extends JsonDeserializer<OrganisationUnitCon
     }
 
 
-    public static List<DbOperation> getOperations(OrganisationUnitContactInfo orgUnitContactInfo) {
+    public static List<DbOperation> getOperations(List<OrganisationUnitContactInfo> orgUnitContactInfo) {
         List<DbOperation> operations = new ArrayList<>();
 
-        operations.add(DbOperation.save(orgUnitContactInfo));
+        for (OrganisationUnitContactInfo contactInfo: orgUnitContactInfo) {
+            operations.add(DbOperation.save(contactInfo));
+        }
         return operations;
     }
 }
