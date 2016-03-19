@@ -32,6 +32,7 @@ package org.hisp.dhis.android.sdk.controllers.metadata;
 import android.content.Context;
 import android.location.LocationManager;
 import android.util.Log;
+import android.util.Pair;
 
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -510,22 +511,16 @@ public final class MetaDataController extends ResourceController {
         return indicators;
     }
 
-    //TODO SMS THINGS
-    public static List<OrganisationUnitContactInfo> getOrgUnitContactInfo(String orgUnitID) {
-        List<OrganisationUnitContactInfo> contactInfos = new Select()
+    //Returns a pair with contactname and phoneno
+    public static Pair<String, String> getOrgUnitContactInfo(String orgUnitID) {
+        OrganisationUnitContactInfo contactInfos = new Select()
                 .from(OrganisationUnitContactInfo.class)
                 .where(Condition.column(OrganisationUnitContactInfo$Table.ID).is(orgUnitID))
-                .queryList();
-        Iterator<OrganisationUnitContactInfo> it = contactInfos.iterator();
-        while (it.hasNext()){
-            OrganisationUnitContactInfo organisationUnitContactInfo = it.next();
-            organisationUnitContactInfo.getId();
-            organisationUnitContactInfo.getAttributeValues();
-
-            SMSNotification.log("THE real thing: id : " + organisationUnitContactInfo.getId());
+                .querySingle();
+        if(contactInfos != null) {
+            return new Pair(contactInfos.getAttributeValues().get(0), contactInfos.getAttributeValues().get(1));
         }
-
-        return contactInfos;
+        return null;
     }
 
     /**
@@ -661,7 +656,7 @@ public final class MetaDataController extends ResourceController {
         final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
         List<OrganisationUnitContactInfo> contactInfo = new ArrayList<>();
 
-        QUERY_MAP_FULL.put("fields", "id,attributeValues");
+        QUERY_MAP_FULL.put("fields", "shortName,id,attributeValues");
 
         for (OrganisationUnit orgUnit : assignedOrgUnits) {
             Response response = dhisApi.getOrgUnitContact(orgUnit.getId(), QUERY_MAP_FULL);

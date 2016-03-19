@@ -19,12 +19,17 @@ import java.util.Map;
  */
 @Table(databaseName = Dhis2Database.NAME)
 public class OrganisationUnitContactInfo extends BaseModel{
-    private final String CLASS_TAG = "OrganisationUnitContactInfo";
+    private final String CLASS_TAG = getClass().getName();
 
     @JsonProperty("id")
     @Column(name = "id")
     @PrimaryKey
     String id;
+
+    @JsonProperty("shortName")
+    @Column(name = "shortName")
+    String shortName;
+
 
     List<String> attributeValues;
 
@@ -40,18 +45,26 @@ public class OrganisationUnitContactInfo extends BaseModel{
         this.attributeValues = tempAttrValues;
     }
 
+    public List<String> getAttributeValues() {
+        return attributeValues;
+    }
+
     public void setId(String id){
         Log.d(CLASS_TAG, "Setting id to: " + id);
         this.id = id;
-        Log.d(CLASS_TAG, "Id is now: " + this.getId());
     }
 
     public String getId(){
         return this.id;
     }
 
-    public List<String> getAttributeValues() {
-        return attributeValues;
+    public void setShortName(String shortName){
+        Log.d(CLASS_TAG, "Setting shortName: " + shortName);
+        this.shortName = shortName;
+    }
+
+    public String getShortName(){
+        return this.shortName;
     }
 
 }

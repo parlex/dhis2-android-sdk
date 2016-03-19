@@ -1,6 +1,7 @@
 package org.hisp.dhis.android.sdk.sms;
 
 import android.util.Log;
+import android.util.Pair;
 
 import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
@@ -34,12 +35,8 @@ public class SMSNotification {
     public static void sensSMSNotification(OrganisationUnit orgUnit, Program program){
         SMSComposer.composeSMS(orgUnit, program);
         //SMSSender.sendSMS(SMSComposer.composeSMS(orgUnit, program), orgUnit.getContactPerson(), orgUnit.getPhoneNumber());
-        List<OrganisationUnitContactInfo> orgInfo = MetaDataController.getOrgUnitContactInfo("pIUx4ola8QM");
-        Iterator<OrganisationUnitContactInfo> it = orgInfo.iterator();
-        while(it.hasNext()){
-            OrganisationUnitContactInfo o = it.next();
-            SMSNotification.log("id fra telefonkatalogen: " + o.getId());
-        }
+        Pair orgInfo = MetaDataController.getOrgUnitContactInfo("pIUx4ola8QM");
+        SMSNotification.log(orgInfo.toString());
 
     }
 

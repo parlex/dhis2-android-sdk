@@ -58,13 +58,14 @@ public class OrgUnitsContactWrapper extends JsonDeserializer<OrganisationUnitCon
 
         while(entryIterator.hasNext()){
             Map.Entry<String, JsonNode> ind = entryIterator.next();
-            if(ind.getKey() == "attributeValues" || ind.getKey() == "id"){
+            if(ind.getKey() == "attributeValues" || ind.getKey() == "id" || ind.getKey() == "shortName"){
                 contactInfo = DhisController.getInstance().getObjectMapper().
                     readValue("{\"" +ind.getKey() + "\":" + ind.getValue() + "}", OrganisationUnitContactInfo.class);
             }
         }
 
         Log.d(CLASS_TAG, "ID: " + contactInfo.getId());
+        Log.d(CLASS_TAG, "ShortName: " + contactInfo.getShortName());
         Log.d(CLASS_TAG, "Attrs: " + contactInfo.getAttributeValues().toString());
 
         return contactInfo;
