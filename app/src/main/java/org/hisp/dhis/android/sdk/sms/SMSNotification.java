@@ -26,7 +26,7 @@ public class SMSNotification {
     public static void sendSMSNotification(OrganisationUnit orgUnit, Program program, Map<String, TrackedEntityAttributeValue> teiMap){
         OrganisationUnitContactInfo contactDetails = MetaDataController.getOrgUnitContactInfo(orgUnit.getId());
         if(contactDetails != null && contactDetails.getContactName() != null && contactDetails.getContactNo() != null) {
-            SMSSender.sendSMS(SMSComposer.composeSMS(orgUnit, program, teiMap, contactDetails.getContactName()), contactDetails.getContactNo());
+            SMSSender.sendSMS(SMSComposer.composeSMS(contactDetails.getShortName(), program, teiMap, contactDetails.getContactName()), contactDetails.getContactNo());
         }else{
             log("Could not find contactinfo");
         }

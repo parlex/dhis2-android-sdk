@@ -49,8 +49,17 @@ public class OrganisationUnitContactInfo extends BaseModel{
         this.attributeValues = tempAttrValues;
 
         if(tempAttrValues.size() > 0){
-            setContactNo(tempAttrValues.get(0));
-            setContactName(tempAttrValues.get(1));
+            String tmp =  tempAttrValues.get(0);
+            String tmp2 = tempAttrValues.get(1);
+            //Is it a number? Numbers has to be without countrycode for now
+            String regex = "\\d+";
+            if(tmp.matches(regex)){
+                setContactNo(tmp);
+                setContactName(tmp2);
+            }else{
+                setContactName(tmp);
+                setContactNo(tmp2);
+            }
         }
     }
 
