@@ -32,41 +32,21 @@ public class OrgUnitsContactWrapper extends JsonDeserializer<OrganisationUnitCon
     public OrganisationUnitContactInfo deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         OrganisationUnitContactInfo contactInfo = null;
         JsonNode rootNode = p.getCodec().readTree(p);
-        JsonNode organisationUnitsNode = rootNode.get(ApiEndpointContainer.ORGANISATIONUNITS);
 
-        Iterator <Map.Entry<String, JsonNode>> entryIterator= rootNode.fields();
-
-        while(entryIterator.hasNext()){
-            Map.Entry<String, JsonNode> ind = entryIterator.next();
-            if(ind.getKey() == "attributeValues" || ind.getKey() == "id"){
-                contactInfo = DhisController.getInstance().getObjectMapper().
-                    readValue("{\"" +ind.getKey() + "\":" + ind.getValue() + "}", OrganisationUnitContactInfo.class);
-            }
-        }
+        contactInfo = DhisController.getInstance().getObjectMapper().
+                    readValue(rootNode.toString(), OrganisationUnitContactInfo.class);
 
         return contactInfo;
     }
 
-    // TODO : Fix the "hacky stuff" that is done to pass the json string
     public OrganisationUnitContactInfo deserialize(Response response) throws ConversionException, IOException {
         OrganisationUnitContactInfo contactInfo = null;
         String responseBodyString = new StringConverter().fromBody(response.getBody(), String.class);
         JsonNode rootNode = DhisController.getInstance().getObjectMapper().
                     readTree(responseBodyString);
 
-        Iterator <Map.Entry<String, JsonNode>> entryIterator= rootNode.fields();
-
-        while(entryIterator.hasNext()){
-            Map.Entry<String, JsonNode> ind = entryIterator.next();
-            if(ind.getKey() == "attributeValues" || ind.getKey() == "id" || ind.getKey() == "shortName"){
-                contactInfo = DhisController.getInstance().getObjectMapper().
-                    readValue("{\"" +ind.getKey() + "\":" + ind.getValue() + "}", OrganisationUnitContactInfo.class);
-            }
-        }
-
-        Log.d(CLASS_TAG, "ID: " + contactInfo.getId());
-        Log.d(CLASS_TAG, "ShortName: " + contactInfo.getShortName());
-        Log.d(CLASS_TAG, "Attrs: " + contactInfo.getAttributeValues().toString());
+        contactInfo = DhisController.getInstance().getObjectMapper().
+                    readValue(rootNode.toString(), OrganisationUnitContactInfo.class);
 
         return contactInfo;
     }

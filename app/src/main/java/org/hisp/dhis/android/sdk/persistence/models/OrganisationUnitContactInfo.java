@@ -41,7 +41,7 @@ public class OrganisationUnitContactInfo extends BaseModel{
         for (Map<String, Object> attributeValue : attributeValues) {
             tempAttrValues.add((String) attributeValue.get("value"));
         }
-        Log.d(CLASS_TAG, "Setting attributeValues to: " + tempAttrValues.toString());
+        Log.d(CLASS_TAG, "Setting attributeValues to: " + tempAttrValues);
         this.attributeValues = tempAttrValues;
     }
 
@@ -50,7 +50,6 @@ public class OrganisationUnitContactInfo extends BaseModel{
     }
 
     public void setId(String id){
-        Log.d(CLASS_TAG, "Setting id to: " + id);
         this.id = id;
     }
 
@@ -59,7 +58,6 @@ public class OrganisationUnitContactInfo extends BaseModel{
     }
 
     public void setShortName(String shortName){
-        Log.d(CLASS_TAG, "Setting shortName: " + shortName);
         this.shortName = shortName;
     }
 
