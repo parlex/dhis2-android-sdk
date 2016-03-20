@@ -18,7 +18,7 @@ public class SMSSender {
         smsSender = new SMSSender();
     }
 
-    public static void sendSMS(String message, String contactPerson, String phoneNumber){
+    public static void sendSMS(String message, String phoneNumber){
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNumber, null, message, null, null);
 

@@ -9,10 +9,13 @@ import org.hisp.dhis.android.sdk.persistence.models.Event;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitContactInfo;
 import org.hisp.dhis.android.sdk.persistence.models.Program;
+import org.hisp.dhis.android.sdk.persistence.models.TrackedEntity;
+import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Alexander Premer on 8/3/2015.
@@ -20,24 +23,13 @@ import java.util.List;
 public class SMSNotification {
     private static final String CLASS_TAG = "SMSNotification";
 
-    public static void sendSMSNotification(Enrollment enrollment) {
-        //SMSSender.sendSms(SMSParse.onNotify(enrollment));
-    }
-
-    public static void sendSMSNotification(Event event) {
-        //SMSSender.sendSms(SMSParse.onNotify(event));
-    }
-
-    public static void sendSMSNotification(TrackedEntityInstance trackedEntityInstance) {
-        //SMSSender.sendSms(SMSParse.onNotify(trackedEntityInstance));
-    }
-
-    public static void sensSMSNotification(OrganisationUnit orgUnit, Program program){
-        SMSComposer.composeSMS(orgUnit, program);
-        //SMSSender.sendSMS(SMSComposer.composeSMS(orgUnit, program), orgUnit.getContactPerson(), orgUnit.getPhoneNumber());
-        Pair orgInfo = MetaDataController.getOrgUnitContactInfo("pIUx4ola8QM");
-        SMSNotification.log(orgInfo.toString());
-
+    public static void sendSMSNotification(OrganisationUnit orgUnit, Program program, Map<String, TrackedEntityAttributeValue> teiMap){
+        OrganisationUnitContactInfo contactDetails = MetaDataController.getOrgUnitContactInfo(orgUnit.getId());
+        if(contactDetails != null && contactDetails.getContactName() != null && contactDetails.getContactNo() != null) {
+            SMSSender.sendSMS(SMSComposer.composeSMS(orgUnit, program, teiMap, contactDetails.getContactName()), contactDetails.getContactNo());
+        }else{
+            log("Could not find contactinfo");
+        }
     }
 
     public static void log(String msg){

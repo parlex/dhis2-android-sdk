@@ -30,6 +30,11 @@ public class OrganisationUnitContactInfo extends BaseModel{
     @Column(name = "shortName")
     String shortName;
 
+    @Column(name = "contactName")
+    String contactName;
+
+    @Column(name = "contactNo")
+    String contactNo;
 
     List<String> attributeValues;
 
@@ -41,12 +46,33 @@ public class OrganisationUnitContactInfo extends BaseModel{
         for (Map<String, Object> attributeValue : attributeValues) {
             tempAttrValues.add((String) attributeValue.get("value"));
         }
-        Log.d(CLASS_TAG, "Setting attributeValues to: " + tempAttrValues);
         this.attributeValues = tempAttrValues;
+
+        if(tempAttrValues.size() > 0){
+            setContactNo(tempAttrValues.get(0));
+            setContactName(tempAttrValues.get(1));
+        }
     }
 
     public List<String> getAttributeValues() {
         return attributeValues;
+    }
+
+
+    public void setContactName(String contactName){
+        this.contactName = contactName;
+    }
+
+    public String getContactName(){
+        return this.contactName;
+    }
+
+    public void setContactNo(String contactNo){
+        this.contactNo = contactNo;
+    }
+
+    public String getContactNo(){
+        return this.contactNo;
     }
 
     public void setId(String id){

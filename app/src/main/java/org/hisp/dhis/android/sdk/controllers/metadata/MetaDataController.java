@@ -512,15 +512,13 @@ public final class MetaDataController extends ResourceController {
     }
 
     //Returns a pair with contactname and phoneno
-    public static Pair<String, String> getOrgUnitContactInfo(String orgUnitID) {
+    public static OrganisationUnitContactInfo getOrgUnitContactInfo(String orgUnitID) {
         OrganisationUnitContactInfo contactInfos = new Select()
                 .from(OrganisationUnitContactInfo.class)
                 .where(Condition.column(OrganisationUnitContactInfo$Table.ID).is(orgUnitID))
                 .querySingle();
-        if(contactInfos != null) {
-            return new Pair(contactInfos.getAttributeValues().get(0), contactInfos.getAttributeValues().get(1));
-        }
-        return null;
+
+        return contactInfos;
     }
 
     /**
