@@ -28,11 +28,12 @@ public class SMSNotification {
      * @param orgUnit The orgunit the person was enrolled to
      * @param program The program the person was enrolled to
      * @param teiMap Map of teivalues
+     * @param incidentDate Date of the incident
      */
-    public static void sendSMSNotification(OrganisationUnit orgUnit, Program program, Map<String, TrackedEntityAttributeValue> teiMap){
+    public static void sendSMSNotification(OrganisationUnit orgUnit, Program program, Map<String, TrackedEntityAttributeValue> teiMap, String incidentDate){
         OrganisationUnitContactInfo contactDetails = MetaDataController.getOrgUnitContactInfo(orgUnit.getId());
         if(contactDetails != null && contactDetails.getContactName() != null && contactDetails.getContactNo() != null) {
-            SMSSender.sendSMS(SMSComposer.composeSMS(contactDetails.getShortName(), program, teiMap, contactDetails.getContactName()), contactDetails.getContactNo());
+            SMSSender.sendSMS(SMSComposer.composeSMS(contactDetails.getShortName(), program, teiMap, contactDetails.getContactName(), incidentDate), contactDetails.getContactNo());
         }else{
             log("Could not find contactinfo");
         }
