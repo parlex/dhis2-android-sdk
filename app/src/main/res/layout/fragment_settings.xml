@@ -107,15 +107,6 @@
                     android:textSize="@dimen/medium_text_size"
                     android:layout_gravity="center_horizontal"/>
 
-                <Switch
-                    android:id="@+id/switchSMS"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Use SMS to notify supervisors?"
-                    android:textSize="@dimen/small_text_size"
-                    android:layout_margin="20dp"
-                    android:checked="true"/>
-
             </LinearLayout>
 
             <org.hisp.dhis.android.sdk.ui.views.FontButton
