@@ -30,9 +30,7 @@
 package org.hisp.dhis.android.sdk.controllers.metadata;
 
 import android.content.Context;
-import android.location.LocationManager;
 import android.util.Log;
-import android.util.Pair;
 
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -97,7 +95,6 @@ import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.persistence.models.meta.DbOperation;
 import org.hisp.dhis.android.sdk.persistence.preferences.DateTimeManager;
 import org.hisp.dhis.android.sdk.persistence.preferences.ResourceType;
-import org.hisp.dhis.android.sdk.sms.SMSNotification;
 import org.hisp.dhis.android.sdk.utils.DbUtils;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
 import org.hisp.dhis.android.sdk.utils.api.ProgramType;
@@ -106,8 +103,6 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -511,7 +506,11 @@ public final class MetaDataController extends ResourceController {
         return indicators;
     }
 
-    //Returns a pair with contactname and phoneno
+    /**
+     * Returns  an OrganisationUnitContactInfo object to fetch contactdetails.
+     * @param orgUnitID ID of the orgunit
+     * @return OrganisationUnitContactInfo (can be null)
+     */
     public static OrganisationUnitContactInfo getOrgUnitContactInfo(String orgUnitID) {
         OrganisationUnitContactInfo contactInfos = new Select()
                 .from(OrganisationUnitContactInfo.class)
@@ -649,6 +648,13 @@ public final class MetaDataController extends ResourceController {
     }
 
     //Getting phonecontacts from the server
+
+    /**
+     * Fetching contact details from the api and storing them in the local database
+     * @param dhisApi
+     * @param assignedOrgUnits List of the assigned programs, that needs contact details
+     * @param serverDateTime
+     */
     private static void getPhoneContactsFromOrgUnit(DhisApi dhisApi, List<OrganisationUnit> assignedOrgUnits, DateTime serverDateTime) {
         Log.d(CLASS_TAG, "getPhoneContactsFromOrgUnit");
         final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
