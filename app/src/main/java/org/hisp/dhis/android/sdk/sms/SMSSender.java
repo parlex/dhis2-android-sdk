@@ -18,6 +18,11 @@ public class SMSSender {
         smsSender = new SMSSender();
     }
 
+    /**
+     * Sends an SMS with the given message to the phonenumber
+     * @param message Message to send
+     * @param phoneNumber Recipient of SMS
+     */
     public static void sendSMS(String message, String phoneNumber){
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(phoneNumber, null, message, null, null);

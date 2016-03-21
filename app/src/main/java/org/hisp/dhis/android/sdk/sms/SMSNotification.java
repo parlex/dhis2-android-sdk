@@ -23,6 +23,12 @@ import java.util.Map;
 public class SMSNotification {
     private static final String CLASS_TAG = "SMSNotification";
 
+    /**
+     * Creates an SMS Notification and sends it to the contact person for the given orgunit
+     * @param orgUnit The orgunit the person was enrolled to
+     * @param program The program the person was enrolled to
+     * @param teiMap Map of teivalues
+     */
     public static void sendSMSNotification(OrganisationUnit orgUnit, Program program, Map<String, TrackedEntityAttributeValue> teiMap){
         OrganisationUnitContactInfo contactDetails = MetaDataController.getOrgUnitContactInfo(orgUnit.getId());
         if(contactDetails != null && contactDetails.getContactName() != null && contactDetails.getContactNo() != null) {
