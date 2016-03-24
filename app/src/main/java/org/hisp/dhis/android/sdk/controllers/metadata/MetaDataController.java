@@ -32,15 +32,19 @@ package org.hisp.dhis.android.sdk.controllers.metadata;
 import android.content.Context;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.ApiEndpointContainer;
+import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.controllers.LoadingController;
 import org.hisp.dhis.android.sdk.controllers.ResourceController;
 import org.hisp.dhis.android.sdk.controllers.wrappers.AssignedProgramsWrapper;
+import org.hisp.dhis.android.sdk.controllers.wrappers.AttributeWrapper;
 import org.hisp.dhis.android.sdk.controllers.wrappers.OptionSetWrapper;
 import org.hisp.dhis.android.sdk.controllers.wrappers.OrgUnitsContactWrapper;
 import org.hisp.dhis.android.sdk.controllers.wrappers.ProgramWrapper;
@@ -52,6 +56,8 @@ import org.hisp.dhis.android.sdk.persistence.models.AttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.AttributeValue$Table;
 import org.hisp.dhis.android.sdk.persistence.models.Constant;
 import org.hisp.dhis.android.sdk.persistence.models.Constant$Table;
+import org.hisp.dhis.android.sdk.persistence.models.CreatedAttributes;
+import org.hisp.dhis.android.sdk.persistence.models.CreatedAttributes$Table;
 import org.hisp.dhis.android.sdk.persistence.models.DataElement;
 import org.hisp.dhis.android.sdk.persistence.models.DataElement$Table;
 import org.hisp.dhis.android.sdk.persistence.models.Option;
@@ -103,6 +109,7 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -537,6 +544,7 @@ public final class MetaDataController extends ResourceController {
         DateTimeManager.getInstance().deleteLastUpdated(ResourceType.PROGRAMRULEACTIONS);
         DateTimeManager.getInstance().deleteLastUpdated(ResourceType.RELATIONSHIPTYPES);
         DateTimeManager.getInstance().deleteLastUpdated(ResourceType.ORGUNITCONTACT);
+        DateTimeManager.getInstance().deleteLastUpdated(ResourceType.ATTRIBUTE);
     }
 
     /**
@@ -567,6 +575,7 @@ public final class MetaDataController extends ResourceController {
                 ProgramRuleAction.class,
                 RelationshipType.class,
                 Attribute.class,
+                CreatedAttributes.class,
                 AttributeValue.class);
     }
 
@@ -637,6 +646,11 @@ public final class MetaDataController extends ResourceController {
                 getRelationshipTypesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        if(LoadingController.isLoadFlagEnabled(context, ResourceType.ATTRIBUTE)){
+            if(shouldLoad(dhisApi, ResourceType.ATTRIBUTE)){
+                getCreatedAttributesInfo(dhisApi, serverDateTime);
+            }
+        }
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.ORGUNITCONTACT)) {
             if ( shouldLoad(dhisApi, ResourceType.ORGUNITCONTACT) ) {
                 List<OrganisationUnit> assignedOrgUnits = getAssignedOrganisationUnits();
@@ -646,8 +660,6 @@ public final class MetaDataController extends ResourceController {
             }
         }
     }
-
-    //Getting phonecontacts from the server
 
     /**
      * Fetching contact details from the api and storing them in the local database
@@ -679,6 +691,67 @@ public final class MetaDataController extends ResourceController {
         List<DbOperation> operations = OrgUnitsContactWrapper.getOperations(contactInfo);
         DbUtils.applyBatch(operations);
         DateTimeManager.getInstance().setLastUpdated(ResourceType.ORGUNITCONTACT, serverDateTime);
+    }
+
+    public static CreatedAttributes getCreatedAttribute(String attributeID){
+        CreatedAttributes createdAttributes =  new Select()
+                .from(CreatedAttributes.class)
+                .where(Condition.column(CreatedAttributes$Table.ID).is(attributeID))
+                .querySingle();
+
+        return createdAttributes;
+
+    }
+
+    private static List<String> getCreatedAttributes(DhisApi dhisApi){
+        Log.d(CLASS_TAG, "getCreatedAttributes");
+        final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
+        QUERY_MAP_FULL.put("paging", "false");
+
+        Response response = dhisApi.getAttributes(QUERY_MAP_FULL);
+
+        List<String> attributeIDs = null;
+        try{
+            attributeIDs = new AttributeWrapper().deserializeAttributeIDs(response);
+        }catch (ConversionException ce) {
+            ce.printStackTrace();
+            return null;
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+        }
+        return attributeIDs;
+    }
+
+    private static void getCreatedAttributesInfo(DhisApi dhisApi, DateTime serverDateTime){
+        Log.d(CLASS_TAG, "getCreatedAttributesInfo");
+        List<String> attributeIDs = getCreatedAttributes(dhisApi);
+        List<CreatedAttributes> createdAttributes = new ArrayList<>();
+        final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
+        QUERY_MAP_FULL.put("fields", "id,name,organisationUnitAttribute");
+
+        for (String id: attributeIDs) {
+            Response response = dhisApi.getAttribute(id, QUERY_MAP_FULL);
+            try{
+                createdAttributes.add(new AttributeWrapper().deserialize(response));
+            }catch (ConversionException ce) {
+                ce.printStackTrace();
+                return;
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                return;
+            }
+        }
+
+        if(createdAttributes.size() > 0) {
+            for (CreatedAttributes ca: createdAttributes) {
+                Log.d(CLASS_TAG, "AttrName: " + ca.getName() + "\tAttrID: " + ca.getId() + "\tOrgunit? = " + ca.isOrgUnitAttribute());
+            }
+            List<DbOperation> operations = AttributeWrapper.getOperations(createdAttributes);
+            DbUtils.applyBatch(operations);
+            DateTimeManager.getInstance().setLastUpdated(ResourceType.ATTRIBUTE, serverDateTime);
+        }
+
     }
 
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {

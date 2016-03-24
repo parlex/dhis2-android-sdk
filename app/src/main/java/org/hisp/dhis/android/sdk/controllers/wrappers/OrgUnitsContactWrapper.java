@@ -1,14 +1,11 @@
 package org.hisp.dhis.android.sdk.controllers.wrappers;
 
-import android.util.Log;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import org.hisp.dhis.android.sdk.controllers.ApiEndpointContainer;
 import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitContactInfo;
 import org.hisp.dhis.android.sdk.persistence.models.meta.DbOperation;
@@ -16,9 +13,7 @@ import org.hisp.dhis.android.sdk.utils.StringConverter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import retrofit.client.Response;
 import retrofit.converter.ConversionException;
