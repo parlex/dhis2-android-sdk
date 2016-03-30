@@ -66,6 +66,7 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.events.EventRow;
 import org.hisp.dhis.android.sdk.ui.dialogs.AutoCompleteDialogFragment;
 import org.hisp.dhis.android.sdk.ui.dialogs.OrgUnitDialogFragment;
 import org.hisp.dhis.android.sdk.ui.dialogs.ProgramDialogFragment;
+import org.hisp.dhis.android.sdk.ui.fragments.smssetup.SmsSetupFragment;
 import org.hisp.dhis.android.sdk.ui.views.CardTextViewButton;
 import org.hisp.dhis.android.sdk.utils.api.ProgramType;
 
@@ -240,6 +241,9 @@ public abstract class SelectProgramFragment extends Fragment
         if (id == R.id.action_settings) {
             mNavigationHandler.switchFragment(
                     new SettingsFragment(), SettingsFragment.TAG, true);
+        } else if (id == R.id.sms_setup) {
+            mNavigationHandler.switchFragment(
+                    new SmsSetupFragment(), SmsSetupFragment.TAG, true);
         }
 
         return super.onOptionsItemSelected(item);

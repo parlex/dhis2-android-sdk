@@ -3,13 +3,15 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_grey"
-    android:paddingTop="6dp">
+    android:padding="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/sms_notification_setup"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:padding="6dp">
 
         <Switch
             android:layout_width="match_parent"
@@ -17,15 +19,16 @@
             android:id="@+id/sms_notifiaction_switch"
             android:text="Enable SMS notification setup"
             android:textSize="22sp"
-            android:checked="true"
+            android:checked="false"
             />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="visible"
-            android:paddingTop="6dp">
+            android:visibility="gone"
+            android:paddingTop="6dp"
+            android:id="@+id/sms_notification_setup_enabled_layout">
 
             <TextView
                 android:layout_width="match_parent"
@@ -63,7 +66,8 @@
         android:id="@+id/sms_gateway_setup"
         android:orientation="vertical"
         android:layout_below="@+id/sms_notification_setup"
-        android:paddingTop="6dp">
+        android:padding="6dp"
+        android:background="@color/white">
 
         <Switch
             android:layout_width="match_parent"
