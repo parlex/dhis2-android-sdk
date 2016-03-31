@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 
 /**
  * Created by premer on 30.03.16.
@@ -23,6 +24,7 @@ public class SmsSetupFragment extends Fragment
     private Switch notificationSwitch;
     private Switch gatewaySwitch;
     private LinearLayout notification_layout_enabled;
+
     public SmsSetupFragment() {
         super();
     }
@@ -44,6 +46,7 @@ public class SmsSetupFragment extends Fragment
         gatewaySwitch = (Switch) view.findViewById(R.id.sms_gateway_switch);
         notification_layout_enabled = (LinearLayout) view.findViewById(R.id.sms_notification_setup_enabled_layout);
 
+        // Enable the layout belonging to the switch if the switch is enabled
         notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
@@ -82,5 +85,17 @@ public class SmsSetupFragment extends Fragment
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Dhis2Application.getEventBus().unregister(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Dhis2Application.getEventBus().register(this);
     }
 }
