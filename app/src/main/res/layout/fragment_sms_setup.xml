@@ -40,7 +40,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/spinner_background_holo_light"
-                android:entries="@array/mock_attributes" />
+                android:entries="@array/mock_attributes"
+                android:id="@+id/contact_attr_spinner"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -53,7 +54,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/spinner_background_holo_light"
-                android:entries="@array/mock_attributes"/>
+                android:entries="@array/mock_attributes"
+                android:id="@+id/phonenum_attr_spinner"/>
 
         </LinearLayout>
 

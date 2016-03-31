@@ -3,12 +3,14 @@ package org.hisp.dhis.android.sdk.ui.fragments.smssetup;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 
 import org.hisp.dhis.android.sdk.R;
@@ -18,12 +20,14 @@ import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
  * Created by premer on 30.03.16.
  */
 public class SmsSetupFragment extends Fragment
-        implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+        implements View.OnClickListener, AdapterView.OnItemSelectedListener, CompoundButton.OnCheckedChangeListener{
 
     public static final String TAG = SmsSetupFragment.class.getSimpleName();
     private Switch notificationSwitch;
     private Switch gatewaySwitch;
     private LinearLayout notification_layout_enabled;
+    private Spinner contact_attributesSpinner;
+    private Spinner phoneNum_attributesSpinner;
 
     public SmsSetupFragment() {
         super();
@@ -45,23 +49,16 @@ public class SmsSetupFragment extends Fragment
         notificationSwitch = (Switch) view.findViewById(R.id.sms_notifiaction_switch);
         gatewaySwitch = (Switch) view.findViewById(R.id.sms_gateway_switch);
         notification_layout_enabled = (LinearLayout) view.findViewById(R.id.sms_notification_setup_enabled_layout);
+        contact_attributesSpinner = (Spinner) view.findViewById(R.id.contact_attr_spinner);
+        phoneNum_attributesSpinner = (Spinner) view.findViewById(R.id.phonenum_attr_spinner);
 
         // Enable the layout belonging to the switch if the switch is enabled
-        notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    notification_layout_enabled.setVisibility(View.VISIBLE);
-                }else{
-                    notification_layout_enabled.setVisibility(View.GONE);
-                }
-            }
-        });
+        notificationSwitch.setOnCheckedChangeListener(this);
+        gatewaySwitch.setOnCheckedChangeListener(this);
 
-        gatewaySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //Show extra layouts for gateway setup
-            }
-        });
+        // Get the values set in the spinners to use in orgUnit thing
+        contact_attributesSpinner.setOnItemSelectedListener(this);
+        phoneNum_attributesSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -69,16 +66,40 @@ public class SmsSetupFragment extends Fragment
 
     }
 
-    public void onCheckedChangeListener(CompoundButton buttonView, boolean isChecked){
-        if(isChecked){
-            notification_layout_enabled.setVisibility(View.VISIBLE);
-        }else{
-            notification_layout_enabled.setVisibility(View.GONE);
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(buttonView.getId() == R.id.sms_notifiaction_switch){
+            if(isChecked){
+                notification_layout_enabled.setVisibility(View.VISIBLE);
+            }else{
+                notification_layout_enabled.setVisibility(View.GONE);
+            }
+        }else if(buttonView.getId() == R.id.sms_gateway_switch){
+            //Do stuff to show gatewaysetup
+            if(isChecked){
+                Log.d(TAG, "Checked gateway switch");
+            }else{
+                Log.d(TAG, "Unchecked gateway switch");
+            }
         }
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if(parent.getId() == R.id.contact_attr_spinner){
+            Log.d(TAG, "Item is selected with id == " + id);
+            Log.d(TAG, "Item is selected with position == " + position);
+            Log.d(TAG, "Spinner view id == " + parent.getId());
+            Log.d(TAG, "contact attr spinner id == " + R.id.contact_attr_spinner);
+            Log.d(TAG, "contact attr spinner item == " + contact_attributesSpinner.getSelectedItem().toString());
+        }else if(parent.getId() == R.id.phonenum_attr_spinner){
+            Log.d(TAG, "Item is selected with id == " + id);
+            Log.d(TAG, "Item is selected with position == " + position);
+            Log.d(TAG, "Spinner view id == " + parent.getId());
+            Log.d(TAG, "contact attr spinner id == " + R.id.contact_attr_spinner);
+            Log.d(TAG, "contact attr spinner item == " + contact_attributesSpinner.getSelectedItem().toString());
+        }
+
 
     }
 
@@ -98,4 +119,5 @@ public class SmsSetupFragment extends Fragment
         super.onResume();
         Dhis2Application.getEventBus().register(this);
     }
+
 }
